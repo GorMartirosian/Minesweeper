@@ -23,6 +23,9 @@ public class Cell {
      * Only used when cell is initialized.
      */
     public void setBomb(){
+        if(hasBomb) {
+            throw new RuntimeException("Cannot set bomb twice!!!");
+        }
         hasBomb = true;
     }
 
@@ -30,14 +33,16 @@ public class Cell {
         return isOpened;
     }
 
-    public void open() {
+    public CellState open() {
         if(!isOpened()) {
+            isOpened = true;
             if(hasBomb()) {
-                //todo game over
+                return CellState.BOMB_FOUND;
             } else {
-                isOpened = true;
+                return CellState.PERFORMED_OPENING;
             }
         }
+        return CellState.ALREADY_OPEN;
     }
 
     public boolean isMarked() {

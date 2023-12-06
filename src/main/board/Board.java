@@ -1,6 +1,7 @@
 package main.board;
 
 import main.board.cell.Cell;
+import java.util.ArrayList;
 
 public class Board {
     private final int height;
@@ -21,8 +22,8 @@ public class Board {
      */
     private Cell[][] generateGrid() {
         Cell[][] grid = new Cell[height][width];
-        for(int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[i].length; j++) {
+        for(int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
                 grid[i][j] = new Cell();
             }
         }
@@ -40,22 +41,68 @@ public class Board {
         return grid;
     }
 
+    private void validate(int row, int col) {
+        if((row >= height || row < 0) || (col >= width || col < 0)) {
+            throw new IllegalArgumentException("Invalid value range for row or column!");
+        }
+    }
+
     public void openCell(int row, int col) {
-        grid[row][col].open();
+        validate(row,col);
+        switch(cellAt(row, col).open()) {
+            case BOMB_FOUND -> gameOver();
+            case PERFORMED_OPENING -> {
+                if(bombsNearby(row,col) == 0) {
+                    openAdjacentCells(row,col);
+                }
+            }
+        }
     }
 
-    public void markCell(int row, int col) {
-        grid[row][col].setMark(true);
+    private void openAdjacentCells(int row, int col) {
+        for (Coordinate neighbor : neighboringCellCoordinates(row, col)) {
+            openCell(neighbor.getX(),neighbor.getY());
+        }
     }
 
-    public void unMarkCell(int row, int col) {
-        grid[row][col].setMark(false);
+    private ArrayList<Coordinate> neighboringCellCoordinates(int row, int col) {
+        ArrayList<Coordinate> coordinates = new ArrayList<>();
+        for(int i = -1; i <= 1; i++) {
+            for(int j = -1; j <= 1; j++) {
+                if(i == 0 && j == 0) {
+                    continue;
+                }
+                int currentCellRow = row + i;
+                int currentCellCol = col + j;
+                boolean currentIsInternalCell = currentCellRow >= 0 && currentCellCol >= 0
+                        && currentCellRow < height && currentCellCol < width;
+                if(currentIsInternalCell) {
+                    coordinates.add(new Coordinate(currentCellRow,currentCellCol));
+                }
+            }
+        }
+        return coordinates;
+    }
+
+    private void gameOver(){
+        System.out.println("The Game Is Over!");
+        revealBoard();
+    }
+
+    public void markCell(int row, int col, boolean mark) {
+        validate(row,col);
+        cellAt(row,col).setMark(mark);
+    }
+
+    public void revealBoard(){
+
     }
 
     private boolean checkWin() {
-        for(int i = 0; i < grid.length; i++) {
-            for(int j = 0; j < grid[i].length; j++) {
-                if(grid[i][j].isOpened() || grid[i][j].hasBomb()) {
+        for(int i = 0; i < height; i++) {
+            for(int j = 0; j < width; j++) {
+                Cell currentCell = cellAt(i,j);
+                if(currentCell.isOpened() || currentCell.hasBomb()) {
                     continue;
                 }
                 return false;
@@ -64,7 +111,53 @@ public class Board {
         return true;
     }
 
+    private int bombsNearby(int row, int col) {
+        validate(row,col);
+        int bombCount = 0;
+        for(Coordinate coordinate : neighboringCellCoordinates(row,col)) {
+            if(cellAt(coordinate.getX(),coordinate.getY()).hasBomb()){
+                bombCount++;
+            }
+        }
+        return bombCount;
+    }
+
     private void print() {
-        for(int i = 0; i < grid[])
+        System.out.print("  ");
+        for (int i = 0; i < width; i++) {
+            System.out.print(i + " ");
+        }
+        for(int i = 0; i < height; i++) {
+            System.out.print(i + " ");
+            printRow(i);
+        }
+    }
+
+    private void printRow(int row) {
+        //💣|⬜|🏁 --- emojis for cells
+        System.out.print("|");
+        for(int i = 0; i < width; i++) {
+            Cell currentCell = cellAt(row,i);
+            if(!currentCell.isOpened()) {
+                if (currentCell.isMarked()){
+                    System.out.print("\uD83C\uDFC1");
+                } else {
+                    System.out.print("⬜");
+                }
+            }else {
+                if(currentCell.hasBomb()){
+                    System.out.print("\uD83D\uDCA3");
+                }else {
+                    System.out.print(bombsNearby(row, i));
+                }
+            }
+            System.out.print("|");
+        }
+        System.out.println();
+    }
+
+    private Cell cellAt(int row, int col){
+        validate(row, col);
+        return grid[row][col];
     }
 }
