@@ -1,4 +1,4 @@
-package main.board.factory;
+package main.board;
 
 import main.board.Board;
 import main.level.Easy;

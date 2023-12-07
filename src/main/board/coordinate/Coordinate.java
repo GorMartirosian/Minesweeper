@@ -1,4 +1,4 @@
-package main.board;
+package main.board.coordinate;
 
 public class Coordinate {
     private final int x;

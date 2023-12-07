@@ -1,6 +1,8 @@
 package main.board;
 
 import main.board.cell.Cell;
+import main.board.coordinate.Coordinate;
+
 import java.util.ArrayList;
 
 public class Board {
@@ -9,7 +11,7 @@ public class Board {
     private final int mineCount;
     private final Cell[][] grid;
 
-    public Board(int height, int width, int mineCount) {
+    protected Board(int height, int width, int mineCount) {
         this.height = height;
         this.width = width;
         this.mineCount = mineCount;
@@ -47,16 +49,26 @@ public class Board {
         }
     }
 
-    public void openCell(int row, int col) {
+    /**
+     * @param row num from 0 to height - 1
+     * @param col num from 0 to width - 1
+     * @return -1 0 or 1 if lost, continuing or victorious state of board.
+     */
+    public int openCell(int row, int col) {
         validate(row,col);
-        switch(cellAt(row, col).open()) {
-            case BOMB_FOUND -> gameOver();
+        return switch(cellAt(row, col).open()) {
+            case BOMB_FOUND -> -1;
             case PERFORMED_OPENING -> {
                 if(bombsNearby(row,col) == 0) {
                     openAdjacentCells(row,col);
                 }
+                if(checkWin()){
+                    yield 1;
+                }
+                yield 0;
             }
-        }
+            case ALREADY_OPEN -> 0;
+        };
     }
 
     private void openAdjacentCells(int row, int col) {
@@ -84,9 +96,9 @@ public class Board {
         return coordinates;
     }
 
-    private void gameOver(){
+    public void gameOver(){
         System.out.println("The Game Is Over!");
-        revealBoard();
+        print();
     }
 
     public void markCell(int row, int col, boolean mark) {
@@ -94,8 +106,9 @@ public class Board {
         cellAt(row,col).setMark(mark);
     }
 
-    public void revealBoard(){
-
+    public void victory(){
+        System.out.println("Congratulations! You won!");
+        print();
     }
 
     private boolean checkWin() {
@@ -122,7 +135,7 @@ public class Board {
         return bombCount;
     }
 
-    private void print() {
+    public void print() {
         System.out.print("  ");
         for (int i = 0; i < width; i++) {
             System.out.print(i + " ");

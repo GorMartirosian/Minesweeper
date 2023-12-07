@@ -1,35 +1,51 @@
 package main;
 
 import main.board.Board;
+import main.board.BoardFactory;
+import main.board.coordinate.UserMark;
 import main.util.io.UserInputUtil;
-import java.sql.Time;
-import java.time.LocalTime;
 
 public class Game {
-    Player player;
 
     public static void main(String[] args) {
-        welcomePlayer();
+        System.out.println("Welcome to the game Minesweeper! ");
         boolean playAgain = true;
         while (playAgain) {
-            Game game = new Game();
-            game.play();
-            game.reportResults();
-            if(UserInputUtil.getInputString("Do you want to play again? (y/n)").equals("y")){
+            play();
+            if(UserInputUtil.getInputString("Do you want to play again? (y/n) ").equals("y")) {
                 continue;
             }
             playAgain = false;
         }
     }
 
-    private static void welcomePlayer(){
-
+    private static int selectDifficulty() {
+        return UserInputUtil.getInputInt("""
+                What difficulty do you want to play?
+                1) Easy
+                2) Medium
+                3) Hard""");
     }
 
-    private void play(){
-
-    }
-    private void reportResults(){
-
+    private static void play(){
+        Board board = BoardFactory.generate(selectDifficulty());
+        board.print();
+        UserMark mark = UserInputUtil.getUserMark();
+        Loop: while (true) {
+            if(mark.getFlag() == 'm') {
+                board.markCell(mark.getX(),mark.getY(),true);
+            } else if(mark.getFlag() == 'u') {
+                board.markCell(mark.getX(),mark.getY(),false);
+            } else {
+                switch (board.openCell(mark.getX(),mark.getY())) {
+                    case 1: board.victory();
+                        break Loop;
+                    case -1: board.gameOver();
+                        break Loop;
+                }
+            }
+            board.print();
+            mark = UserInputUtil.getUserMark();
+        }
     }
 }
