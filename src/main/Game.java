@@ -32,10 +32,12 @@ public class Game {
         board.print();
         UserMark mark = UserInputUtil.getUserMark();
         Loop: while (true) {
-            if(mark.getFlag() == 'm') {
-                board.markCell(mark.getX(),mark.getY(),true);
-            } else if(mark.getFlag() == 'u') {
-                board.markCell(mark.getX(),mark.getY(),false);
+            if(mark.hasFlag()){
+                if(mark.getFlag() == 'm') {
+                    board.markCell(mark.getX(),mark.getY());
+                } else {
+                    board.unmarkCell(mark.getX(),mark.getY());
+                }
             } else {
                 switch (board.openCell(mark.getX(),mark.getY())) {
                     case 1: board.victory();

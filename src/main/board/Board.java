@@ -101,9 +101,14 @@ public class Board {
         print();
     }
 
-    public void markCell(int row, int col, boolean mark) {
+    public void markCell(int row, int col) {
         validate(row,col);
-        cellAt(row,col).setMark(mark);
+        cellAt(row,col).setMark(true);
+    }
+
+    public void unmarkCell(int row, int col){
+        validate(row,col);
+        cellAt(row,col).setMark(false);
     }
 
     public void victory(){
@@ -136,32 +141,38 @@ public class Board {
     }
 
     public void print() {
-        System.out.print("  ");
+        System.out.print("    ");
         for (int i = 0; i < width; i++) {
             System.out.print(i + " ");
+            if(i < 10){
+                System.out.print(" ");
+            }
         }
+        System.out.println();
         for(int i = 0; i < height; i++) {
             System.out.print(i + " ");
+            if(i < 10) {
+                System.out.print(" ");
+            }
             printRow(i);
         }
     }
 
     private void printRow(int row) {
-        //💣|⬜|🏁 --- emojis for cells
         System.out.print("|");
         for(int i = 0; i < width; i++) {
             Cell currentCell = cellAt(row,i);
             if(!currentCell.isOpened()) {
                 if (currentCell.isMarked()){
-                    System.out.print("\uD83C\uDFC1");
+                    System.out.print("M ");
                 } else {
-                    System.out.print("⬜");
+                    System.out.print("  ");
                 }
             }else {
                 if(currentCell.hasBomb()){
-                    System.out.print("\uD83D\uDCA3");
+                    System.out.print("X ");
                 }else {
-                    System.out.print(bombsNearby(row, i));
+                    System.out.print(bombsNearby(row, i) + " ");
                 }
             }
             System.out.print("|");
