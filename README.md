@@ -1,1 +1,1 @@
-The game created using Java. Runs in command line.
+Minesweeper created using Java. Runs in command line.
