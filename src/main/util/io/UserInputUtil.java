@@ -1,8 +1,6 @@
 package main.util.io;
 
 import main.board.coordinate.UserMark;
-
-import java.util.Optional;
 import java.util.Scanner;
 
 public class UserInputUtil {

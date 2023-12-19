@@ -1,17 +1,11 @@
 package main.board.coordinate;
 
-import main.board.coordinate.Coordinate;
-
 public class UserMark extends Coordinate {
     private final Character flag;
 
     public UserMark(int x, int y, Character flag) {
         super(x, y);
         this.flag = flag;
-    }
-
-    public UserMark(int x, int y) {
-        this(x,y,null);
     }
 
     public char getFlag() {
